@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Wishlist - AgriMarket{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="fas fa-heart text-danger"></i> My Wishlist</h2>
+    
+    {% if wishlist_items %}
+    <div class="row g-4">
+        {% for item in wishlist_items %}
+        <div class="col-md-3">
+            <div class="card h-100">
+                <img src="{{ item.product.image.url }}" class="product-img" alt="{{ item.product.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.product.name }}</h5>
+                    <p class="h5 text-success">₹{{ item.product.price }}</p>
+                    <a href="{% url 'products:product_detail' item.product.pk %}" class="btn btn-primary btn-sm w-100 mb-2">View</a>
+                    <a href="{% url 'products:wishlist_toggle' item.product.pk %}" class="btn btn-outline-danger btn-sm w-100">Remove</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Your wishlist is empty. <a href="{% url 'products:product_list' %}">Browse products</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

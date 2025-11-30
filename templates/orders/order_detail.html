@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Details - AgriMarket{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Order Details</h2>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Order #{{ order.order_number }}</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Order Date:</strong> {{ order.created_at|date:"d M Y, h:i A" }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge 
+                            {% if order.status == 'pending' %}bg-warning
+                            {% elif order.status == 'packed' %}bg-info
+                            {% elif order.status == 'shipped' %}bg-primary
+                            {% elif order.status == 'delivered' %}bg-success
+                            {% else %}bg-danger{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </p>
+                    <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                    
+                    <hr>
+                    
+                    <h5>Shipping Address</h5>
+                    <p>{{ order.shipping_address }}</p>
+                    <p><strong>Phone:</strong> {{ order.shipping_phone }}</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5>Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>₹{{ item.price }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₹{{ item.subtotal }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Total:</th>
+                                <th>₹{{ order.total_amount }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Order Tracking</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="{% if order.status == 'pending' or order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}text-success{% endif %}">
+                            <i class="fas fa-check-circle"></i> Order Placed
+                        </div>
+                        <div class="{% if order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}text-success{% endif %}">
+                            <i class="fas fa-box"></i> Packed
+                        </div>
+                        <div class="{% if order.status == 'shipped' or order.status == 'delivered' %}text-success{% endif %}">
+                            <i class="fas fa-shipping-fast"></i> Shipped
+                        </div>
+                        <div class="{% if order.status == 'delivered' %}text-success{% endif %}">
+                            <i class="fas fa-home"></i> Delivered
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

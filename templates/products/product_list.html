@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Products - AgriMarket{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">All Products</h2>
+    
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="get" class="d-flex">
+                <input type="text" name="q" class="form-control me-2" placeholder="Search products..." value="{{ query }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" onchange="location.href='?sort='+this.value">
+                <option value="">Sort By</option>
+                <option value="newest">Newest First</option>
+                <option value="price_low">Price: Low to High</option>
+                <option value="price_high">Price: High to Low</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Categories</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'products:product_list' %}" class="list-group-item">All Products</a>
+                    {% for category in categories %}
+                    <a href="?category={{ category.id }}" class="list-group-item">{{ category.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Products -->
+        <div class="col-md-9">
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <img src="{{ product.image.url }}" class="product-img" alt="{{ product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="text-muted small">{{ product.category.name }}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="h5 text-success mb-0">₹{{ product.price }}</span>
+                                <span class="rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.average_rating %}
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                            <p class="small">Stock: {{ product.stock }}</p>
+                            <a href="{% url 'products:product_detail' product.pk %}" class="btn btn-primary btn-sm w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p class="text-center">No products found.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
