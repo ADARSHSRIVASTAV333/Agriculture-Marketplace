@@ -194,6 +194,38 @@ Delete `db.sqlite3` and run migrations again:
 python manage.py migrate
 ```
 
+## Deployment
+
+### Deploy to Render (Recommended - Free Tier)
+1. Create a [Render](https://render.com) account
+2. Connect your GitHub repository
+3. Click "New +" → "Blueprint" and select this repository
+4. Render will automatically use `render.yaml` to configure deployment
+5. Set environment variables:
+   - `SECRET_KEY`: A secure random string
+   - `DEBUG`: `False`
+   - `ALLOWED_HOSTS`: Your Render domain
+
+### Deploy to Heroku/Railway
+1. Use the included `Procfile` for deployment
+2. Set the following environment variables:
+   - `SECRET_KEY`: A secure random string
+   - `DEBUG`: `False`
+   - `ALLOWED_HOSTS`: Your app domain
+3. Run `./build.sh` as the build command
+
+### Manual Deployment
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run build script
+./build.sh
+
+# Start with gunicorn
+gunicorn agrimarket.wsgi:application
+```
+
 ## Support
 For issues or questions, please check the Django documentation at https://docs.djangoproject.com/
 
