@@ -29,6 +29,9 @@ class Order(models.Model):
         ('cancelled', 'Cancelled'),
     )
     
+    # Status flow order (excluding cancelled which is a terminal state)
+    STATUS_ORDER = ['pending', 'packed', 'shipped', 'delivered']
+    
     PAYMENT_CHOICES = (
         ('cod', 'Cash on Delivery'),
         ('razorpay', 'Razorpay'),
@@ -56,6 +59,35 @@ class Order(models.Model):
     
     def __str__(self):
         return f"Order {self.order_number} - {self.user.username}"
+    
+    def can_revert_status(self):
+        """Check if the order status can be reverted to the previous stage."""
+        if self.status == 'cancelled':
+            return False
+        if self.status == 'pending':
+            return False
+        return self.status in self.STATUS_ORDER
+    
+    def get_previous_status(self):
+        """Get the previous status in the order flow."""
+        if not self.can_revert_status():
+            return None
+        try:
+            current_index = self.STATUS_ORDER.index(self.status)
+            if current_index > 0:
+                return self.STATUS_ORDER[current_index - 1]
+        except ValueError:
+            pass
+        return None
+    
+    def revert_status(self):
+        """Revert the order status to the previous stage. Returns True if successful."""
+        previous_status = self.get_previous_status()
+        if previous_status:
+            self.status = previous_status
+            self.save()
+            return True
+        return False
 
 # Order Items
 class OrderItem(models.Model):

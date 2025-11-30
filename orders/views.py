@@ -124,5 +124,31 @@ def order_list(request):
 
 @login_required
 def order_detail(request, pk):
-    order = get_object_or_404(Order, pk=pk, user=request.user)
+    # Staff/admin can view any order, regular users can only view their own
+    if request.user.is_staff or request.user.role == 'admin':
+        order = get_object_or_404(Order, pk=pk)
+    else:
+        order = get_object_or_404(Order, pk=pk, user=request.user)
     return render(request, 'orders/order_detail.html', {'order': order})
+
+
+@login_required
+def revert_order_status(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    
+    # Only staff/admin can revert order status
+    if not request.user.is_staff and request.user.role != 'admin':
+        messages.error(request, 'You do not have permission to change order status.')
+        return redirect('orders:order_detail', pk=pk)
+    
+    if request.method == 'POST':
+        if order.can_revert_status():
+            previous_status = order.get_previous_status()
+            if order.revert_status():
+                messages.success(request, f'Order status reverted to {order.get_status_display()}.')
+            else:
+                messages.error(request, 'Could not revert order status.')
+        else:
+            messages.error(request, 'Cannot revert this order status.')
+    
+    return redirect('orders:order_detail', pk=pk)
