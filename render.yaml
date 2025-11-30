@@ -1,0 +1,17 @@
+# Render.com Deployment Configuration
+# Deploy to: https://render.com
+
+services:
+  - type: web
+    name: agriculture-marketplace
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn agrimarket.wsgi:application
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
